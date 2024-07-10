@@ -30,7 +30,7 @@ const Drawer = createDrawerNavigator();
  
 function MyDrawer() { 
   return ( 
-    <Drawer.Navigator initialRouteName='Mapa' > 
+    <Drawer.Navigator initialRouteName='Galeria' > 
         <Drawer.Screen name="Welcome" component={WelcomeScreen} /> 
         <Drawer.Screen name='Mascota' component={MyTops}/> 
         <Drawer.Screen name='Camara' component={CamaraScreen}/> 

@@ -1,11 +1,13 @@
-import { StyleSheet, Text, View, Button } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import MapView, { Marker } from 'react-native-maps';
-import * as Location from 'expo-location';
+import { StyleSheet, Text, View, Button } from "react-native";
+import React, { useEffect, useState } from "react";
+import MapView, { Marker } from "react-native-maps";
+import * as Location from "expo-location";
+
+type LocationType = Location.LocationObject | null;
 
 export default function MapaScreen() {
-  const [location, setLocation] = useState(null);
-  const [errorMsg, setErrorMsg] = useState("");
+  const [location, setLocation] = useState<LocationType>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [region, setRegion] = useState({
     latitude: 37.78825,
     longitude: -122.4324,
@@ -16,8 +18,8 @@ export default function MapaScreen() {
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permiso para acceder a la ubicación denegado');
+      if (status !== "granted") {
+        setErrorMsg("Permiso para acceder a la ubicación denegado");
         return;
       }
 
@@ -48,7 +50,24 @@ export default function MapaScreen() {
     })();
   }, []);
 
-  let text = 'Esperando..';
+  const obtenerUbicacion = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      setErrorMsg("Permiso para acceder a la ubicación denegado");
+      return;
+    }
+
+    const loc = await Location.getCurrentPositionAsync({});
+    setLocation(loc);
+    setRegion({
+      latitude: loc.coords.latitude,
+      longitude: loc.coords.longitude,
+      latitudeDelta: 0.0922,
+      longitudeDelta: 0.0421,
+    });
+  };
+
+  let text = "Esperando..";
   if (errorMsg) {
     text = errorMsg;
   } else if (location) {
@@ -83,21 +102,21 @@ export default function MapaScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f5f5f5',
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#f5f5f5",
   },
   map: {
-    width: '100%',
-    height: '80%',
+    width: "100%",
+    height: "80%",
   },
   buttonContainer: {
     marginVertical: 20,
-    width: '90%',
+    width: "90%",
   },
   text: {
     fontSize: 16,
-    color: '#333',
-    textAlign: 'center',
+    color: "#333",
+    textAlign: "center",
   },
 });
