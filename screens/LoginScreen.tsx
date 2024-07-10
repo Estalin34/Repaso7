@@ -1,65 +1,107 @@
-import { Button, StyleSheet, Text, View, TextInput, Alert} from 'react-native'
-import React, { useState } from 'react'
+import { Button, StyleSheet, Text, View, TextInput, Alert, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../config/Config';
 
 export default function LoginScreen({ navigation }: any) {
-
-  const [correo, setCorreo] = useState('')
-  const [contrasenia, setContrasenia] = useState('')
+  const [correo, setCorreo] = useState('');
+  const [contrasenia, setContrasenia] = useState('');
 
   function login() {
     signInWithEmailAndPassword(auth, correo, contrasenia)
-    .then((userCredential) => {
-      // Signed in 
-      const user = userCredential.user;
-     console.log(user);
-     navigation.navigate('Drawer')
-    // Alert.alert("Acseso")
-      // ...
-    })
-    .catch((error) => {
-      const errorCode = error.code ;
-      const errorMessage = error.message;
-      let titulo = ""
-      let mensaje=""
-if(errorCode == "auth/wrong-passwod")
-  {titulo="error de contraseñia", mensaje="la contraseñia esta incorrecta"} 
-else if (errorCode == "auth/wrong-passwod")
-  {
-  titulo="error de usuario", mensaje="El usuario esta incorrecto"
-}else { titulo="error de Acceso", mensaje="Revisar credenciales" }
-      Alert.alert(titulo , mensaje)
-    });
-  
+      .then((userCredential) => {
+        const user = userCredential.user;
+        console.log(user);
+        navigation.navigate('Drawer');
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        let titulo = '';
+        let mensaje = '';
+        if (errorCode === "auth/wrong-password") {
+          titulo = "Error de contraseña";
+          mensaje = "La contraseña está incorrecta";
+        } else if (errorCode === "auth/user-not-found") {
+          titulo = "Error de usuario";
+          mensaje = "El usuario no existe";
+        } else {
+          titulo = "Error de Acceso";
+          mensaje = "Revisar credenciales";
+        }
+        Alert.alert(titulo, mensaje);
+      });
   }
 
   return (
     <View style={styles.container}>
-      <Text style={{ fontSize: 30 }}>Login</Text>
+      <Text style={styles.title}>Login</Text>
 
       <TextInput
+        style={styles.input}
         placeholder='Ingresa tu correo electrónico'
-        onChangeText={(texto) => (setCorreo(texto))}
+        onChangeText={(texto) => setCorreo(texto)}
         keyboardType='email-address'
       />
       <TextInput
+        style={styles.input}
         placeholder='Ingresa contraseña'
-        onChangeText={(texto) => (setContrasenia(texto))}
+        onChangeText={(texto) => setContrasenia(texto)}
+        secureTextEntry
       />
 
-      <Button title='Ingresar' onPress={() => login () } />
+      <TouchableOpacity style={styles.button} onPress={login}>
+        <Text style={styles.buttonText}>Ingresar</Text>
+      </TouchableOpacity>
 
-      <Text onPress={() => navigation.navigate('Registro')}> 👉 Regístrate aquí 👈</Text>
+      <TouchableOpacity onPress={() => navigation.navigate('Registro')}>
+        <Text style={styles.registerText}>👉 Regístrate aquí 👈</Text>
+      </TouchableOpacity>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f5f5f5',
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 20,
   },
-})
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    marginBottom: 40,
+    color: '#333',
+  },
+  input: {
+    width: '100%',
+    height: 50,
+    backgroundColor: '#fff',
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    marginBottom: 20,
+    borderColor: '#ccc',
+    borderWidth: 1,
+  },
+  button: {
+    width: '100%',
+    height: 50,
+    backgroundColor: '#6200ee',
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  registerText: {
+    color: '#6200ee',
+    fontSize: 16,
+    textDecorationLine: 'underline',
+  },
+});

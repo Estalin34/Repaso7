@@ -20,23 +20,33 @@ export default function MapaScreen() {
         setErrorMsg('Permiso para acceder a la ubicación denegado');
         return;
       }
-    })();
-  }, []);
 
-  const obtenerUbicacion = async () => {
-    try {
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location);
+      const loc = await Location.getCurrentPositionAsync({});
+      setLocation(loc);
       setRegion({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
+        latitude: loc.coords.latitude,
+        longitude: loc.coords.longitude,
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
       });
-    } catch (error) {
-      setErrorMsg('Error al obtener la ubicación');
-    }
-  };
+
+      Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.High,
+          timeInterval: 1000,
+          distanceInterval: 1,
+        },
+        (newLocation) => {
+          setLocation(newLocation);
+          setRegion((prevRegion) => ({
+            ...prevRegion,
+            latitude: newLocation.coords.latitude,
+            longitude: newLocation.coords.longitude,
+          }));
+        }
+      );
+    })();
+  }, []);
 
   let text = 'Esperando..';
   if (errorMsg) {
@@ -62,8 +72,10 @@ export default function MapaScreen() {
           />
         )}
       </MapView>
-      <Button title="Obtener Ubicación" onPress={obtenerUbicacion} />
-      <Text>{text}</Text>
+      <View style={styles.buttonContainer}>
+        <Button title="Obtener Ubicación" onPress={obtenerUbicacion} />
+      </View>
+      <Text style={styles.text}>{text}</Text>
     </View>
   );
 }
@@ -71,9 +83,21 @@ export default function MapaScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f5f5f5',
   },
   map: {
     width: '100%',
     height: '80%',
+  },
+  buttonContainer: {
+    marginVertical: 20,
+    width: '90%',
+  },
+  text: {
+    fontSize: 16,
+    color: '#333',
+    textAlign: 'center',
   },
 });
